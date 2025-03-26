@@ -1,155 +1,206 @@
-import streamlit as st
-import pandas as pd
-import json
-import plotly.graph_objects as go
-from io import StringIO
-import base64
-
-# Set page configuration
-st.set_page_config(
-    page_title="Product Content Analysis Matrix",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Apply custom CSS
-st.markdown("""
-<style>
-    .main {
-        padding: 1rem;
-    }
-    .score-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        color: white;
-        margin: 0 auto;
-    }
-    .score-5 { background-color: #4c7a00; }
-    .score-4 { background-color: #76a12e; }
-    .score-3 { background-color: #9bc357; }
-    .score-2 { background-color: #c2dc8d; }
-    .score-1 { background-color: #f3f4f6; color: #6b7280; }
-    .score-null { background-color: #e5e7eb; }
-    
-    .st-emotion-cache-16idsys p {
-        font-size: 14px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .category-header {
-        background-color: #f3f4f6;
-        padding: 10px;
-        font-weight: bold;
-        border-radius: 5px;
-        margin: 10px 0;
-    }
-    
-    .metric-row {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .competitor-header {
-        text-align: center;
-        padding: 10px;
-        font-weight: bold;
-        border-bottom: 2px solid #76a12e;
-    }
-    
-    .competitor-score {
-        font-size: 28px;
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    
-    .legend-container {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        padding: 10px;
-        margin-bottom: 20px;
-        background-color: #f8f9fa;
-        border-radius: 5px;
-    }
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        white-space: nowrap;
-    }
-    
-    .legend-circle {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        color: white;
-    }
-    
-    .score-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
-    }
-    
-    .score-table th, .score-table td {
-        text-align: center;
-        padding: 10px;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    
-    .element-column {
-        text-align: left;
-        max-width: 280px;
-        padding-left: 15px !important;
-    }
-    
-    .matrix-container {
-        overflow-x: auto;
-    }
-    
-    /* Fix for competitor headers alignment */
-    .competitor-column {
-        min-width: 140px;
-        width: 140px;
-        max-width: 140px;
-    }
-    
-    .sub-category {
-        font-size: 0.85rem;
-        color: #6b7280;
-        margin-top: 2px;
-    }
-    
-    .compact-description {
+"scores": [5, 5, 5, 3, 3, 3]
+                                },
+                                {
+                                    "name": "Faceted Navigation",
+                                    "description": "Filter system using product attributes for refinement",
+                                    "scores": [3, 5, 5, 5, 3, 5]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product List Page",
+                            "metrics": [
+                                {
+                                    "name": "Product Descriptions",
+                                    "description": "Structured naming with brand, model, and key specifications",
+                                    "scores": [3, 3, 5, 3, 2, 3]
+                                },
+                                {
+                                    "name": "Thumbnail Images",
+                                    "description": "Quality and consistency of list view images",
+                                    "scores": [3, 3, 5, 5, 2, 3]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Detail Images",
+                            "metrics": [
+                                {
+                                    "name": "Primary Image",
+                                    "description": "Presence and quality of main product image",
+                                    "scores": [5, 5, 5, 5, 3, 3]
+                                },
+                                {
+                                    "name": "Multiple Images",
+                                    "description": "Additional product views/angles available",
+                                    "scores": [2, 3, 5, 5, 2, 2]
+                                },
+                                {
+                                    "name": "Rich Content",
+                                    "description": "Interactive rotating product view",
+                                    "scores": [1, 1, 1, 1, 1, 1]
+                                },
+                                {
+                                    "name": "Lifestyle Images",
+                                    "description": "Photos showing product being used/installed",
+                                    "scores": [1, 2, 5, 5, 1, 1]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Media",
+                            "metrics": [
+                                {
+                                    "name": "Product Videos",
+                                    "description": "Video content showing product features/use",
+                                    "scores": [1, 1, 1, 1, 1, 1]
+                                },
+                                {
+                                    "name": "Product PDF Assets",
+                                    "description": "Spec sheets, manuals, installation guides",
+                                    "scores": [3, 2, 5, 3, 2, 1]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Content",
+                            "metrics": [
+                                {
+                                    "name": "Long Description/Feature Bullets",
+                                    "description": "Marketing descriptions and key product features",
+                                    "scores": [3, 2, 5, 5, 3, 2]
+                                },
+                                {
+                                    "name": "Specifications",
+                                    "description": "Technical product attributes and details",
+                                    "scores": [3, 5, 5, 5, 3, 2]
+                                },
+                                {
+                                    "name": "How to?",
+                                    "description": "Where/how to use the product",
+                                    "scores": [3, 2, 5, 5, 2, 1]
+                                },
+                                {
+                                    "name": "Product Recommendations/Substitutions",
+                                    "description": "Compatible products, replacement parts",
+                                    "scores": [3, 3, 5, 3, 2, 2]
+                                },
+                                {
+                                    "name": "Customer Reviews & Q&A",
+                                    "description": "Customer feedback and questions with answers",
+                                    "scores": [2, 3, 5, 3, 1, 1]
+                                },
+                                {
+                                    "name": "Projects/Inspirational/Collections",
+                                    "description": "Project ideas and inspirational content",
+                                    "scores": [1, 2, 5, 3, 1, 1]
+                                },
+                                {
+                                    "name": "Base/Variant – SUPER SKU",
+                                    "description": "Product variants and super SKU structure",
+                                    "scores": [2, 3, 5, 2, 2, 1]
+                                }
+                            ]
+                        }
+                    ]
+                    
+                    st.session_state['confirm_reset'] = False
+                    st.rerun()
+                else:
+                    st.session_state['confirm_reset'] = True
+                    st.warning("Click again to confirm reset. This will erase all customizations.")
+        
+        with col2:
+            export_data = {
+                "competitors": st.session_state.competitors,
+                "categories": st.session_state.categories
+            }
+            st.markdown(get_download_link(export_data, "matrix-data.json", "Export Data"), unsafe_allow_html=True)
+        
+        with col3:
+            uploaded_file = st.file_uploader("Import Data", type=["json"])
+            if uploaded_file:
+                try:
+                    content = uploaded_file.getvalue().decode("utf-8")
+                    data = json.loads(content)
+                    
+                    if "competitors" in data and "categories" in data:
+                        st.session_state.competitors = data["competitors"]
+                        st.session_state.categories = data["categories"]
+                        st.success("Data imported successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Invalid data format")
+                except Exception as e:
+                    st.error(f"Error parsing file: {str(e)}")
+                    
+        # Visualization options
+        st.header("Visualization Options")
+        if st.button("Generate Radar Chart"):
+            # Create radar chart of competitor scores by category
+            categories_df = []
+            
+            for category in st.session_state.categories:
+                category_name = category["name"]
+                for comp_idx, competitor in enumerate(st.session_state.competitors):
+                    comp_name = competitor["name"]
+                    
+                    # Calculate average score for this category
+                    cat_scores = [m["scores"][comp_idx] for m in category["metrics"]]
+                    avg_score = sum(cat_scores) / len(cat_scores) if cat_scores else 0
+                    
+                    categories_df.append({
+                        "Category": category_name,
+                        "Competitor": comp_name,
+                        "Score": round(avg_score, 1)
+                    })
+            
+            cat_df = pd.DataFrame(categories_df)
+            
+            # Create radar chart using Plotly
+            fig = go.Figure()
+            
+            categories = cat_df["Category"].unique()
+            
+            for competitor in cat_df["Competitor"].unique():
+                comp_data = cat_df[cat_df["Competitor"] == competitor]
+                
+                fig.add_trace(go.Scatterpolar(
+                    r=comp_data["Score"].values,
+                    theta=comp_data["Category"].values,
+                    fill='toself',
+                    name=competitor
+                ))
+            
+            fig.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 5]
+                    )
+                ),
+                title="Category Performance by Competitor",
+                showlegend=True
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+if __name__ == "__main__":
+    main()    .compact-description {
         font-size: 0.8rem;
         color: #6b7280;
-        margin-top: 2px;
-    }
-    
-    .bordered-table {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        overflow: hidden;
+        display: inline;
+        margin-left: 5px;
     }
     
     .competitor-name {
         font-weight: bold;
         text-align: center;
-        margin-top: 5px;
+    }
+    
+    .metric-name {
+        font-weight: bold;
+        display: inline;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -352,30 +403,38 @@ def main():
         # Update scores
         update_competitor_scores()
         
-        # Display competitors and their total scores in a table layout
-        st.subheader("Competitor Scores")
+        # Display competitors and their total scores without subheader - directly in the same table
+        # Create a table for competitor scores with scores above names
+        st.markdown("""
+        <h3>Competitor Scores</h3>
+        <div class="matrix-container">
+        <table class='score-table'>
+            <tr>
+        """, unsafe_allow_html=True)
         
-        # Create a bordered table for competitor scores with scores above names
-        competitor_html = "<div class='bordered-table'><table class='score-table'><tr>"
-        # Add scores first
+        # Create competitor score table directly in HTML
+        score_html = ""
         for comp in st.session_state.competitors:
-            competitor_html += f"<th class='competitor-column'><div class='competitor-score'>{comp['score']}</div></th>"
-        competitor_html += "</tr><tr>"
-        # Add competitor names
-        for comp in st.session_state.competitors:
-            competitor_html += f"<td class='competitor-column'><div class='competitor-name'>{comp['name']}</div></td>"
-        competitor_html += "</tr></table></div>"
+            score_html += f"<td class='competitor-column'><div class='competitor-score'>{comp['score']}</div></td>"
         
-        st.markdown(competitor_html, unsafe_allow_html=True)
+        st.markdown(score_html, unsafe_allow_html=True)
+        st.markdown("</tr><tr>", unsafe_allow_html=True)
+        
+        name_html = ""
+        for comp in st.session_state.competitors:
+            name_html += f"<td class='competitor-column'><div class='competitor-name'>{comp['name']}</div></td>"
+        
+        st.markdown(name_html, unsafe_allow_html=True)
+        st.markdown("</tr></table></div>", unsafe_allow_html=True)
         
         # Detailed table view
-        st.subheader("Detailed Matrix View")
+        st.markdown("<h3>Detailed Matrix View</h3>", unsafe_allow_html=True)
         
         for category in st.session_state.categories:
             st.markdown(f"<div class='category-header'>{category['name']}</div>", unsafe_allow_html=True)
             
             # Create a table for metrics and scores
-            table_html = "<div class='matrix-container'><div class='bordered-table'><table class='score-table'><tr>"
+            table_html = "<div class='matrix-container'><table class='score-table'><tr>"
             table_html += "<th class='element-column'>Element / Metric</th>"
             
             # Add competitor names as headers
@@ -387,8 +446,8 @@ def main():
             # Add metric rows
             for metric in category["metrics"]:
                 table_html += "<tr>"
-                # Metric name and description in a more compact format
-                table_html += f"<td class='element-column'><strong>{metric['name']}</strong><div class='compact-description'>{metric['description']}</div></td>"
+                # Create a very compact Element/Metric section
+                table_html += f"<td class='element-column'><div class='metric-name'>{metric['name']}</div><div class='compact-description'>{metric['description']}</div></td>"
                 
                 # Add scores
                 for i, score in enumerate(metric["scores"]):
@@ -396,7 +455,7 @@ def main():
                         table_html += f"<td class='competitor-column'><div class='score-circle score-{score}'>{score}</div></td>"
                 table_html += "</tr>"
                 
-            table_html += "</table></div></div>"
+            table_html += "</table></div>"
             st.markdown(table_html, unsafe_allow_html=True)
     
     with tab2:
@@ -487,192 +546,137 @@ def main():
                                 {
                                     "name": "Taxonomy Menu: Mega Menu",
                                     "description": "Expandable navigation showing full product hierarchy and category breadth",
-                                    "scores": [5, 5, 5, 3, 3, 3]
-                                },
-                                {
-                                    "name": "Faceted Navigation",
-                                    "description": "Filter system using product attributes for refinement",
-                                    "scores": [3, 5, 5, 5, 3, 5]
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Product List Page",
-                            "metrics": [
-                                {
-                                    "name": "Product Descriptions",
-                                    "description": "Structured naming with brand, model, and key specifications",
-                                    "scores": [3, 3, 5, 3, 2, 3]
-                                },
-                                {
-                                    "name": "Thumbnail Images",
-                                    "description": "Quality and consistency of list view images",
-                                    "scores": [3, 3, 5, 5, 2, 3]
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Product Detail Images",
-                            "metrics": [
-                                {
-                                    "name": "Primary Image",
-                                    "description": "Presence and quality of main product image",
-                                    "scores": [5, 5, 5, 5, 3, 3]
-                                },
-                                {
-                                    "name": "Multiple Images",
-                                    "description": "Additional product views/angles available",
-                                    "scores": [2, 3, 5, 5, 2, 2]
-                                },
-                                {
-                                    "name": "Rich Content",
-                                    "description": "Interactive rotating product view",
-                                    "scores": [1, 1, 1, 1, 1, 1]
-                                },
-                                {
-                                    "name": "Lifestyle Images",
-                                    "description": "Photos showing product being used/installed",
-                                    "scores": [1, 2, 5, 5, 1, 1]
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Product Media",
-                            "metrics": [
-                                {
-                                    "name": "Product Videos",
-                                    "description": "Video content showing product features/use",
-                                    "scores": [1, 1, 1, 1, 1, 1]
-                                },
-                                {
-                                    "name": "Product PDF Assets",
-                                    "description": "Spec sheets, manuals, installation guides",
-                                    "scores": [3, 2, 5, 3, 2, 1]
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Product Content",
-                            "metrics": [
-                                {
-                                    "name": "Long Description/Feature Bullets",
-                                    "description": "Marketing descriptions and key product features",
-                                    "scores": [3, 2, 5, 5, 3, 2]
-                                },
-                                {
-                                    "name": "Specifications",
-                                    "description": "Technical product attributes and details",
-                                    "scores": [3, 5, 5, 5, 3, 2]
-                                },
-                                {
-                                    "name": "How to?",
-                                    "description": "Where/how to use the product",
-                                    "scores": [3, 2, 5, 5, 2, 1]
-                                },
-                                {
-                                    "name": "Product Recommendations/Substitutions",
-                                    "description": "Compatible products, replacement parts",
-                                    "scores": [3, 3, 5, 3, 2, 2]
-                                },
-                                {
-                                    "name": "Customer Reviews & Q&A",
-                                    "description": "Customer feedback and questions with answers",
-                                    "scores": [2, 3, 5, 3, 1, 1]
-                                },
-                                {
-                                    "name": "Projects/Inspirational/Collections",
-                                    "description": "Project ideas and inspirational content",
-                                    "scores": [1, 2, 5, 3, 1, 1]
-                                },
-                                {
-                                    "name": "Base/Variant – SUPER SKU",
-                                    "description": "Product variants and super SKU structure",
-                                    "scores": [2, 3, 5, 2, 2, 1]
-                                }
-                            ]
-                        }
-                    ]
-                    
-                    st.session_state['confirm_reset'] = False
-                    st.rerun()
-                else:
-                    st.session_state['confirm_reset'] = True
-                    st.warning("Click again to confirm reset. This will erase all customizations.")
-        
-        with col2:
-            export_data = {
-                "competitors": st.session_state.competitors,
-                "categories": st.session_state.categories
-            }
-            st.markdown(get_download_link(export_data, "matrix-data.json", "Export Data"), unsafe_allow_html=True)
-        
-        with col3:
-            uploaded_file = st.file_uploader("Import Data", type=["json"])
-            if uploaded_file:
-                try:
-                    content = uploaded_file.getvalue().decode("utf-8")
-                    data = json.loads(content)
-                    
-                    if "competitors" in data and "categories" in data:
-                        st.session_state.competitors = data["competitors"]
-                        st.session_state.categories = data["categories"]
-                        st.success("Data imported successfully!")
-                        st.rerun()
-                    else:
-                        st.error("Invalid data format")
-                except Exception as e:
-                    st.error(f"Error parsing file: {str(e)}")
-                    
-        # Visualization options
-        st.header("Visualization Options")
-        if st.button("Generate Radar Chart"):
-            # Create radar chart of competitor scores by category
-            categories_df = []
-            
-            for category in st.session_state.categories:
-                category_name = category["name"]
-                for comp_idx, competitor in enumerate(st.session_state.competitors):
-                    comp_name = competitor["name"]
-                    
-                    # Calculate average score for this category
-                    cat_scores = [m["scores"][comp_idx] for m in category["metrics"]]
-                    avg_score = sum(cat_scores) / len(cat_scores) if cat_scores else 0
-                    
-                    categories_df.append({
-                        "Category": category_name,
-                        "Competitor": comp_name,
-                        "Score": round(avg_score, 1)
-                    })
-            
-            cat_df = pd.DataFrame(categories_df)
-            
-            # Create radar chart using Plotly
-            fig = go.Figure()
-            
-            categories = cat_df["Category"].unique()
-            
-            for competitor in cat_df["Competitor"].unique():
-                comp_data = cat_df[cat_df["Competitor"] == competitor]
-                
-                fig.add_trace(go.Scatterpolar(
-                    r=comp_data["Score"].values,
-                    theta=comp_data["Category"].values,
-                    fill='toself',
-                    name=competitor
-                ))
-            
-            fig.update_layout(
-                polar=dict(
-                    radialaxis=dict(
-                        visible=True,
-                        range=[0, 5]
-                    )
-                ),
-                title="Category Performance by Competitor",
-                showlegend=True
-            )
-            
-            st.plotly_chart(fig, use_container_width=True)
-            
-if __name__ == "__main__":
-    main()
+                                    "scores": [5, 5, 5import streamlit as st
+import pandas as pd
+import json
+import plotly.graph_objects as go
+from io import StringIO
+import base64
+
+# Set page configuration
+st.set_page_config(
+    page_title="Product Content Analysis Matrix",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Apply custom CSS
+st.markdown("""
+<style>
+    .main {
+        padding: 1rem;
+    }
+    .score-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: white;
+        margin: 0 auto;
+    }
+    .score-5 { background-color: #4c7a00; }
+    .score-4 { background-color: #76a12e; }
+    .score-3 { background-color: #9bc357; }
+    .score-2 { background-color: #c2dc8d; }
+    .score-1 { background-color: #f3f4f6; color: #6b7280; }
+    .score-null { background-color: #e5e7eb; }
+    
+    .st-emotion-cache-16idsys p {
+        font-size: 14px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .category-header {
+        background-color: #f3f4f6;
+        padding: 10px;
+        font-weight: bold;
+        border-radius: 5px;
+        margin: 10px 0;
+    }
+    
+    .metric-row {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .competitor-header {
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        border-bottom: 2px solid #76a12e;
+    }
+    
+    .competitor-score {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 0;
+    }
+    
+    .legend-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    
+    .legend-circle {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: white;
+    }
+    
+    .score-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .score-table th, .score-table td {
+        text-align: center;
+        padding: 10px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .element-column {
+        text-align: left;
+        width: 300px;
+        padding-left: 10px !important;
+    }
+    
+    .matrix-container {
+        overflow-x: auto;
+    }
+    
+    /* Fix for competitor headers alignment */
+    .competitor-column {
+        min-width: 140px;
+        width: 140px;
+        max-width: 140px;
+    }
+    
+    .compact-description {
+        font-size: 0.8rem;
+        color
