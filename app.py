@@ -19,8 +19,8 @@ st.markdown("""
         padding: 1rem;
     }
     .score-circle {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -29,10 +29,11 @@ st.markdown("""
         color: white;
         margin: 0 auto;
     }
+    .score-5 { background-color: #4c7a00; }
     .score-4 { background-color: #76a12e; }
     .score-3 { background-color: #9bc357; }
     .score-2 { background-color: #c2dc8d; }
-    .score-0 { background-color: #f3f4f6; color: #6b7280; }
+    .score-1 { background-color: #f3f4f6; color: #6b7280; }
     .score-null { background-color: #e5e7eb; }
     
     .st-emotion-cache-16idsys p {
@@ -47,18 +48,38 @@ st.markdown("""
         border-radius: 5px;
         margin: 10px 0;
     }
+    
+    .metric-row {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .competitor-header {
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        border-bottom: 2px solid #76a12e;
+    }
+    
+    .competitor-score {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Initialize session state for storing data
 if 'competitors' not in st.session_state:
     st.session_state.competitors = [
-        {"name": "SiteOne.com", "score": 51},
-        {"name": "Grainger", "score": 53},
-        {"name": "Home Depot", "score": 71},
-        {"name": "PlantingTree.com", "score": 65},
-        {"name": "Fastenal", "score": 48},
-        {"name": "Heritage", "score": 42}
+        {"name": "SiteOne.com", "score": 39},
+        {"name": "Grainger", "score": 44},
+        {"name": "Home Depot", "score": 60},
+        {"name": "PlantingTree.com", "score": 52},
+        {"name": "Fastenal", "score": 30},
+        {"name": "Heritage", "score": 27}
     ]
 
 if 'categories' not in st.session_state:
@@ -193,71 +214,6 @@ def update_competitor_scores():
     for i, competitor in enumerate(st.session_state.competitors):
         competitor["score"] = calculate_total_score(i)
 
-# Function to create a scorecard visualization
-def create_scorecard(categories, competitors):
-    # Prepare data for the heatmap
-    df_data = []
-    
-    for cat_idx, category in enumerate(categories):
-        for metric_idx, metric in enumerate(category["metrics"]):
-            for comp_idx, score in enumerate(metric["scores"]):
-                df_data.append({
-                    "Category": category["name"],
-                    "Metric": metric["name"],
-                    "Competitor": competitors[comp_idx]["name"],
-                    "Score": score
-                })
-    
-    df = pd.DataFrame(df_data)
-    
-    # Create a pivot table
-    pivot = df.pivot_table(
-        index=["Category", "Metric"], 
-        columns="Competitor", 
-        values="Score", 
-        aggfunc='first'
-    )
-    
-    # Create a heatmap using Plotly
-    fig = go.Figure(data=go.Heatmap(
-        z=pivot.values,
-        x=pivot.columns,
-        y=[f"{cat} - {metric}" for cat, metric in pivot.index],
-        colorscale=[
-            [0, "#f3f4f6"],
-            [0.25, "#f3f4f6"],
-            [0.25, "#c2dc8d"],
-            [0.5, "#c2dc8d"],
-            [0.5, "#9bc357"],
-            [0.75, "#9bc357"],
-            [0.75, "#76a12e"],
-            [1, "#76a12e"]
-        ],
-        showscale=True,
-        hoverongaps=False,
-        zmin=0,
-        zmax=4,
-        text=pivot.values,
-        texttemplate="%{text}",
-        textfont={"color":"white"}
-    ))
-    
-    fig.update_layout(
-        title="Product Content Analysis Heatmap",
-        height=800,
-        margin=dict(l=150),
-        yaxis=dict(
-            title="",
-            tickfont=dict(size=10),
-        ),
-        xaxis=dict(
-            title="",
-            tickfont=dict(size=12),
-        )
-    )
-    
-    return fig
-
 # Download functions
 def get_download_link(data, filename, text):
     json_str = json.dumps(data, indent=2)
@@ -274,28 +230,46 @@ def main():
     
     with tab1:
         # Legend
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-4">4</div>&nbsp;Extensive (4)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-5">5</div>&nbsp;World Class (5)</div>', unsafe_allow_html=True)
         with col2:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-3">3</div>&nbsp;Good (3)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-4">4</div>&nbsp;Very Good (4)</div>', unsafe_allow_html=True)
         with col3:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-2">2</div>&nbsp;Basic (2)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-3">3</div>&nbsp;Good (3)</div>', unsafe_allow_html=True)
         with col4:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-0">0</div>&nbsp;Minimal/None (0)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-2">2</div>&nbsp;Basic (2)</div>', unsafe_allow_html=True)
+        with col5:
+            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-1">1</div>&nbsp;None (1)</div>', unsafe_allow_html=True)
+        
+        # Convert old scores (0,2,3,4) to new scale (1,2,3,4,5)
+        if "score_updated" not in st.session_state:
+            for cat in st.session_state.categories:
+                for met in cat["metrics"]:
+                    for i, score in enumerate(met["scores"]):
+                        if score == 0:
+                            met["scores"][i] = 1
+                        elif score == 4:
+                            met["scores"][i] = 5
+            st.session_state.score_updated = True
         
         # Update scores
         update_competitor_scores()
         
         # Display competitors and their total scores
         st.subheader("Competitor Scores")
-        score_cols = st.columns(len(st.session_state.competitors))
+        score_container = st.container()
+        score_cols = score_container.columns(len(st.session_state.competitors))
+        
+        # First row - competitor names
         for i, comp in enumerate(st.session_state.competitors):
             with score_cols[i]:
-                st.metric(comp["name"], comp["score"])
+                st.markdown(f"<div class='competitor-header'>{comp['name']}</div>", unsafe_allow_html=True)
         
-        # Render scorecard visualization
-        st.plotly_chart(create_scorecard(st.session_state.categories, st.session_state.competitors), use_container_width=True)
+        # Second row - scores
+        for i, comp in enumerate(st.session_state.competitors):
+            with score_cols[i]:
+                st.markdown(f"<div class='competitor-score'>{comp['score']}</div>", unsafe_allow_html=True)
         
         # Detailed table view
         st.subheader("Detailed Matrix View")
@@ -303,6 +277,16 @@ def main():
         for category in st.session_state.categories:
             st.markdown(f"<div class='category-header'>{category['name']}</div>", unsafe_allow_html=True)
             
+            # Add competitor headers for each category
+            header_cols = st.columns([3] + [1] * len(st.session_state.competitors))
+            with header_cols[0]:
+                st.markdown("<b>Element / Metric</b>", unsafe_allow_html=True)
+            
+            for i, comp in enumerate(st.session_state.competitors):
+                with header_cols[i+1]:
+                    st.markdown(f"<b>{comp['name']}</b>", unsafe_allow_html=True)
+            
+            # Display metrics with scores
             for metric in category["metrics"]:
                 cols = st.columns([3] + [1] * len(st.session_state.competitors))
                 
@@ -346,7 +330,7 @@ def main():
                     # Add empty score slot for each metric
                     for category in st.session_state.categories:
                         for metric in category["metrics"]:
-                            metric["scores"].append(0)
+                            metric["scores"].append(1)  # Default to 1 (None) instead of 0
                     st.rerun()
                 else:
                     st.error("Maximum of 10 competitors reached")
@@ -367,13 +351,24 @@ def main():
                         st.markdown(f"**{competitor['name']}**")
                         new_score = st.selectbox(
                             "",
-                            options=[0, 2, 3, 4],
-                            format_func=lambda x: f"{x} - {'Extensive' if x==4 else 'Good' if x==3 else 'Basic' if x==2 else 'Minimal/None'}",
-                            index=[0, 2, 3, 4].index(metric["scores"][comp_idx]) if comp_idx < len(metric["scores"]) else 0,
+                            options=[1, 2, 3, 4, 5],
+                            format_func=lambda x: f"{x} - {'World Class' if x==5 else 'Very Good' if x==4 else 'Good' if x==3 else 'Basic' if x==2 else 'None'}",
+                            index=[1, 2, 3, 4, 5].index(metric["scores"][comp_idx]) if comp_idx < len(metric["scores"]) and metric["scores"][comp_idx] in [1, 2, 3, 4, 5] else 0,
                             key=f"score_{category_idx}_{metric_idx}_{comp_idx}"
                         )
                         
-                        # Update the score value when changed
+                        # Convert old scores (0,2,3,4) to new scale (1,2,3,4,5)
+                        if "score_updated" not in st.session_state:
+                            for cat in st.session_state.categories:
+                                for met in cat["metrics"]:
+                                    for i, score in enumerate(met["scores"]):
+                                        if score == 0:
+                                            met["scores"][i] = 1
+                                        elif score == 4:
+                                            met["scores"][i] = 5
+                            st.session_state.score_updated = True
+                            
+                        # Update scores
                         if comp_idx < len(metric["scores"]) and new_score != metric["scores"][comp_idx]:
                             metric["scores"][comp_idx] = new_score
         
@@ -387,14 +382,24 @@ def main():
                 if st.session_state.get('confirm_reset', False):
                     # Reset to default data
                     st.session_state.competitors = [
-                        {"name": "SiteOne.com", "score": 51},
-                        {"name": "Grainger", "score": 53},
-                        {"name": "Home Depot", "score": 71},
-                        {"name": "PlantingTree.com", "score": 65},
-                        {"name": "Fastenal", "score": 48},
-                        {"name": "Heritage", "score": 42}
+                        {"name": "SiteOne.com", "score": 39},
+                        {"name": "Grainger", "score": 44},
+                        {"name": "Home Depot", "score": 60},
+                        {"name": "PlantingTree.com", "score": 52},
+                        {"name": "Fastenal", "score": 30},
+                        {"name": "Heritage", "score": 27}
                     ]
-                    st.session_state.categories = json.loads(json.dumps(st.session_state.categories))
+                    
+                    # Reset categories with new scoring (1-5 instead of 0-4)
+                    for category in st.session_state.categories:
+                        for metric in category["metrics"]:
+                            # Convert existing scores
+                            for i in range(len(metric["scores"])):
+                                if metric["scores"][i] == 0:
+                                    metric["scores"][i] = 1
+                                elif metric["scores"][i] == 4:
+                                    metric["scores"][i] = 5
+                    
                     st.session_state['confirm_reset'] = False
                     st.rerun()
                 else:
@@ -467,7 +472,7 @@ def main():
                 polar=dict(
                     radialaxis=dict(
                         visible=True,
-                        range=[0, 4]
+                        range=[0, 5]
                     )
                 ),
                 title="Category Performance by Competitor",
