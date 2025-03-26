@@ -67,6 +67,7 @@ st.markdown("""
         font-size: 28px;
         font-weight: bold;
         text-align: center;
+        margin-bottom: 10px;
     }
     
     .legend-container {
@@ -101,6 +102,7 @@ st.markdown("""
     .score-table {
         width: 100%;
         border-collapse: collapse;
+        margin-bottom: 20px;
     }
     
     .score-table th, .score-table td {
@@ -111,6 +113,8 @@ st.markdown("""
     
     .element-column {
         text-align: left;
+        max-width: 280px;
+        padding-left: 15px !important;
     }
     
     .matrix-container {
@@ -119,9 +123,33 @@ st.markdown("""
     
     /* Fix for competitor headers alignment */
     .competitor-column {
-        min-width: 120px;
-        width: 120px;
-        max-width: 120px;
+        min-width: 140px;
+        width: 140px;
+        max-width: 140px;
+    }
+    
+    .sub-category {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    .compact-description {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-top: 2px;
+    }
+    
+    .bordered-table {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .competitor-name {
+        font-weight: bold;
+        text-align: center;
+        margin-top: 5px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -327,16 +355,16 @@ def main():
         # Display competitors and their total scores in a table layout
         st.subheader("Competitor Scores")
         
-        # Create a table for competitor scores
-        competitor_html = "<table class='score-table'><tr>"
+        # Create a bordered table for competitor scores with scores above names
+        competitor_html = "<div class='bordered-table'><table class='score-table'><tr>"
+        # Add scores first
+        for comp in st.session_state.competitors:
+            competitor_html += f"<th class='competitor-column'><div class='competitor-score'>{comp['score']}</div></th>"
+        competitor_html += "</tr><tr>"
         # Add competitor names
         for comp in st.session_state.competitors:
-            competitor_html += f"<th class='competitor-column'>{comp['name']}</th>"
-        competitor_html += "</tr><tr>"
-        # Add scores
-        for comp in st.session_state.competitors:
-            competitor_html += f"<td class='competitor-column'><div class='competitor-score'>{comp['score']}</div></td>"
-        competitor_html += "</tr></table>"
+            competitor_html += f"<td class='competitor-column'><div class='competitor-name'>{comp['name']}</div></td>"
+        competitor_html += "</tr></table></div>"
         
         st.markdown(competitor_html, unsafe_allow_html=True)
         
@@ -347,7 +375,7 @@ def main():
             st.markdown(f"<div class='category-header'>{category['name']}</div>", unsafe_allow_html=True)
             
             # Create a table for metrics and scores
-            table_html = "<div class='matrix-container'><table class='score-table'><tr>"
+            table_html = "<div class='matrix-container'><div class='bordered-table'><table class='score-table'><tr>"
             table_html += "<th class='element-column'>Element / Metric</th>"
             
             # Add competitor names as headers
@@ -359,8 +387,8 @@ def main():
             # Add metric rows
             for metric in category["metrics"]:
                 table_html += "<tr>"
-                # Metric name and description
-                table_html += f"<td class='element-column'><strong>{metric['name']}</strong><br/><small>{metric['description']}</small></td>"
+                # Metric name and description in a more compact format
+                table_html += f"<td class='element-column'><strong>{metric['name']}</strong><div class='compact-description'>{metric['description']}</div></td>"
                 
                 # Add scores
                 for i, score in enumerate(metric["scores"]):
@@ -368,7 +396,7 @@ def main():
                         table_html += f"<td class='competitor-column'><div class='score-circle score-{score}'>{score}</div></td>"
                 table_html += "</tr>"
                 
-            table_html += "</table></div>"
+            table_html += "</table></div></div>"
             st.markdown(table_html, unsafe_allow_html=True)
     
     with tab2:
