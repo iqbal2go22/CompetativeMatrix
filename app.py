@@ -4,6 +4,8 @@ import json
 import plotly.graph_objects as go
 from io import StringIO
 import base64
+import os
+import pickle
 
 # Set page configuration
 st.set_page_config(
@@ -11,6 +13,152 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# File path for storing data
+DATA_FILE = "matrix_data.pickle"
+
+# Load data function
+def load_data():
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, 'rb') as f:
+                data = pickle.load(f)
+                return data.get('competitors', []), data.get('categories', [])
+        except Exception as e:
+            st.warning(f"Error loading saved data: {e}")
+    
+    # Return default data if no saved data exists
+    return [
+        {"name": "SiteOne.com", "score": 44},
+        {"name": "Grainger", "score": 50},
+        {"name": "Home Depot", "score": 77},
+        {"name": "PlantingTree.com", "score": 62},
+        {"name": "Fastenal", "score": 34},
+        {"name": "Heritage", "score": 33}
+    ], [
+        {
+            "name": "Site Navigation",
+            "metrics": [
+                {
+                    "name": "Taxonomy Menu: Mega Menu",
+                    "description": "Expandable navigation showing full product hierarchy and category breadth",
+                    "scores": [4, 4, 4, 3, 3, 3]
+                },
+                {
+                    "name": "Faceted Navigation",
+                    "description": "Filter system using product attributes for refinement",
+                    "scores": [3, 4, 4, 4, 3, 4]
+                }
+            ]
+        },
+        {
+            "name": "Product List Page",
+            "metrics": [
+                {
+                    "name": "Product Descriptions",
+                    "description": "Structured naming with brand, model, and key specifications",
+                    "scores": [3, 3, 4, 3, 2, 3]
+                },
+                {
+                    "name": "Thumbnail Images",
+                    "description": "Quality and consistency of list view images",
+                    "scores": [3, 3, 4, 4, 2, 3]
+                }
+            ]
+        },
+        {
+            "name": "Product Detail Images",
+            "metrics": [
+                {
+                    "name": "Primary Image",
+                    "description": "Presence and quality of main product image",
+                    "scores": [4, 4, 4, 4, 3, 3]
+                },
+                {
+                    "name": "Multiple Images",
+                    "description": "Additional product views/angles available",
+                    "scores": [2, 3, 4, 4, 2, 2]
+                },
+                {
+                    "name": "Rich Content",
+                    "description": "Interactive rotating product view",
+                    "scores": [0, 0, 0, 0, 0, 0]
+                },
+                {
+                    "name": "Lifestyle Images",
+                    "description": "Photos showing product being used/installed",
+                    "scores": [0, 2, 4, 4, 0, 0]
+                }
+            ]
+        },
+        {
+            "name": "Product Media",
+            "metrics": [
+                {
+                    "name": "Product Videos",
+                    "description": "Video content showing product features/use",
+                    "scores": [0, 0, 0, 0, 0, 0]
+                },
+                {
+                    "name": "Product PDF Assets",
+                    "description": "Spec sheets, manuals, installation guides",
+                    "scores": [3, 2, 4, 3, 2, 1]
+                }
+            ]
+        },
+        {
+            "name": "Product Content",
+            "metrics": [
+                {
+                    "name": "Long Description/Feature Bullets",
+                    "description": "Marketing descriptions and key product features",
+                    "scores": [3, 2, 4, 4, 3, 2]
+                },
+                {
+                    "name": "Specifications",
+                    "description": "Technical product attributes and details",
+                    "scores": [3, 4, 4, 4, 3, 2]
+                },
+                {
+                    "name": "How to?",
+                    "description": "Where/how to use the product",
+                    "scores": [3, 2, 4, 4, 2, 1]
+                },
+                {
+                    "name": "Product Recommendations/Substitutions",
+                    "description": "Compatible products, replacement parts",
+                    "scores": [3, 3, 4, 3, 2, 2]
+                },
+                {
+                    "name": "Customer Reviews & Q&A",
+                    "description": "Customer feedback and questions with answers",
+                    "scores": [2, 3, 4, 3, 1, 0]
+                },
+                {
+                    "name": "Projects/Inspirational/Collections",
+                    "description": "Project ideas and inspirational content",
+                    "scores": [1, 2, 4, 3, 0, 0]
+                },
+                {
+                    "name": "Base/Variant – SUPER SKU",
+                    "description": "Product variants and super SKU structure",
+                    "scores": [2, 3, 4, 2, 2, 1]
+                }
+            ]
+        }
+    ]
+
+# Save data function
+def save_data(competitors, categories):
+    data = {
+        'competitors': competitors,
+        'categories': categories
+    }
+    try:
+        with open(DATA_FILE, 'wb') as f:
+            pickle.dump(data, f)
+    except Exception as e:
+        st.warning(f"Error saving data: {e}")
 
 # Apply custom CSS
 st.markdown("""
@@ -177,129 +325,10 @@ category_icons = {
 }
 
 # Initialize session state for storing data
-if 'competitors' not in st.session_state:
-    st.session_state.competitors = [
-        {"name": "SiteOne.com", "score": 44},
-        {"name": "Grainger", "score": 50},
-        {"name": "Home Depot", "score": 77},
-        {"name": "PlantingTree.com", "score": 62},
-        {"name": "Fastenal", "score": 34},
-        {"name": "Heritage", "score": 33}
-    ]
-
-if 'categories' not in st.session_state:
-    st.session_state.categories = [
-        {
-            "name": "Site Navigation",
-            "metrics": [
-                {
-                    "name": "Taxonomy Menu: Mega Menu",
-                    "description": "Expandable navigation showing full product hierarchy and category breadth",
-                    "scores": [5, 5, 5, 3, 3, 3]
-                },
-                {
-                    "name": "Faceted Navigation",
-                    "description": "Filter system using product attributes for refinement",
-                    "scores": [3, 5, 5, 5, 3, 5]
-                }
-            ]
-        },
-        {
-            "name": "Product List Page",
-            "metrics": [
-                {
-                    "name": "Product Descriptions",
-                    "description": "Structured naming with brand, model, and key specifications",
-                    "scores": [3, 3, 5, 3, 2, 3]
-                },
-                {
-                    "name": "Thumbnail Images",
-                    "description": "Quality and consistency of list view images",
-                    "scores": [3, 3, 5, 5, 2, 3]
-                }
-            ]
-        },
-        {
-            "name": "Product Detail Images",
-            "metrics": [
-                {
-                    "name": "Primary Image",
-                    "description": "Presence and quality of main product image",
-                    "scores": [5, 5, 5, 5, 3, 3]
-                },
-                {
-                    "name": "Multiple Images",
-                    "description": "Additional product views/angles available",
-                    "scores": [2, 3, 5, 5, 2, 2]
-                },
-                {
-                    "name": "Rich Content",
-                    "description": "Interactive rotating product view",
-                    "scores": [1, 1, 1, 1, 1, 1]
-                },
-                {
-                    "name": "Lifestyle Images",
-                    "description": "Photos showing product being used/installed",
-                    "scores": [1, 2, 5, 5, 1, 1]
-                }
-            ]
-        },
-        {
-            "name": "Product Media",
-            "metrics": [
-                {
-                    "name": "Product Videos",
-                    "description": "Video content showing product features/use",
-                    "scores": [1, 1, 1, 1, 1, 1]
-                },
-                {
-                    "name": "Product PDF Assets",
-                    "description": "Spec sheets, manuals, installation guides",
-                    "scores": [3, 2, 5, 3, 2, 1]
-                }
-            ]
-        },
-        {
-            "name": "Product Content",
-            "metrics": [
-                {
-                    "name": "Long Description/Feature Bullets",
-                    "description": "Marketing descriptions and key product features",
-                    "scores": [3, 2, 5, 5, 3, 2]
-                },
-                {
-                    "name": "Specifications",
-                    "description": "Technical product attributes and details",
-                    "scores": [3, 5, 5, 5, 3, 2]
-                },
-                {
-                    "name": "How to?",
-                    "description": "Where/how to use the product",
-                    "scores": [3, 2, 5, 5, 2, 1]
-                },
-                {
-                    "name": "Product Recommendations/Substitutions",
-                    "description": "Compatible products, replacement parts",
-                    "scores": [3, 3, 5, 3, 2, 2]
-                },
-                {
-                    "name": "Customer Reviews & Q&A",
-                    "description": "Customer feedback and questions with answers",
-                    "scores": [2, 3, 5, 3, 1, 1]
-                },
-                {
-                    "name": "Projects/Inspirational/Collections",
-                    "description": "Project ideas and inspirational content",
-                    "scores": [1, 2, 5, 3, 1, 1]
-                },
-                {
-                    "name": "Base/Variant – SUPER SKU",
-                    "description": "Product variants and super SKU structure",
-                    "scores": [2, 3, 5, 2, 2, 1]
-                }
-            ]
-        }
-    ]
+if 'competitors' not in st.session_state or 'categories' not in st.session_state:
+    competitors, categories = load_data()
+    st.session_state.competitors = competitors
+    st.session_state.categories = categories
 
 # Function to calculate total score for a competitor
 def calculate_total_score(competitor_index):
@@ -318,6 +347,8 @@ def calculate_total_score(competitor_index):
 def update_competitor_scores():
     for i, competitor in enumerate(st.session_state.competitors):
         competitor["score"] = calculate_total_score(i)
+    # Save data after updating scores
+    save_data(st.session_state.competitors, st.session_state.categories)
 
 # Download functions
 def get_download_link(data, filename, text):
@@ -357,7 +388,7 @@ def main():
                 <div class="legend-circle score-1">1</div>
                 <span>None (1)</span>
             </div>
-            <div class="legend-item">
+<div class="legend-item">
                 <div class="legend-circle score-0">0</div>
                 <span>Minimal/None (0)</span>
             </div>
@@ -374,6 +405,8 @@ def main():
                         elif score == 4:
                             met["scores"][i] = 5
             st.session_state.score_updated = True
+            # Save data after updating scores
+            save_data(st.session_state.competitors, st.session_state.categories)
         
         # Update scores
         update_competitor_scores()
@@ -381,7 +414,7 @@ def main():
         # Display competitors and their total scores
         st.markdown("<h3>Competitor Scores</h3>", unsafe_allow_html=True)
         
-    # Create a table with scores above names like in the reference image
+        # Create a table with scores above names like in the reference image
         score_table = "<div class='matrix-container'><table class='score-table'><tr>"
         
         # Header row with Element/Website label
@@ -440,7 +473,10 @@ def main():
             cols = st.columns([3, 1])
             with cols[0]:
                 new_name = st.text_input(f"Competitor {i+1}", competitor["name"], key=f"comp_{i}")
-                st.session_state.competitors[i]["name"] = new_name
+                if new_name != competitor["name"]:
+                    st.session_state.competitors[i]["name"] = new_name
+                    # Save after changing name
+                    save_data(st.session_state.competitors, st.session_state.categories)
             with cols[1]:
                 if st.button("Remove", key=f"remove_{i}") and len(st.session_state.competitors) > 1:
                     st.session_state.competitors.pop(i)
@@ -449,6 +485,8 @@ def main():
                         for metric in category["metrics"]:
                             if i < len(metric["scores"]):
                                 metric["scores"].pop(i)
+                    # Save after removing competitor
+                    save_data(st.session_state.competitors, st.session_state.categories)
                     st.rerun()
         
         # Add new competitor
@@ -464,6 +502,8 @@ def main():
                     for category in st.session_state.categories:
                         for metric in category["metrics"]:
                             metric["scores"].append(1)  # Default to 1 (None) instead of 0
+                    # Save after adding competitor
+                    save_data(st.session_state.competitors, st.session_state.categories)
                     st.rerun()
                 else:
                     st.error("Maximum of 10 competitors reached")
@@ -493,6 +533,8 @@ def main():
                         # Update scores
                         if comp_idx < len(metric["scores"]) and new_score != metric["scores"][comp_idx]:
                             metric["scores"][comp_idx] = new_score
+                            # Save after updating score
+                            save_data(st.session_state.competitors, st.session_state.categories)
         
         # Import/Export functionality
         st.header("Import/Export Data")
@@ -626,6 +668,9 @@ def main():
                         }
                     ]
                     
+                    # Save the reset data
+                    save_data(st.session_state.competitors, st.session_state.categories)
+                    
                     st.session_state['confirm_reset'] = False
                     st.rerun()
                 else:
@@ -649,6 +694,9 @@ def main():
                     if "competitors" in data and "categories" in data:
                         st.session_state.competitors = data["competitors"]
                         st.session_state.categories = data["categories"]
+                        # Save the imported data
+                        save_data(st.session_state.competitors, st.session_state.categories)
+                        
                         st.success("Data imported successfully!")
                         st.rerun()
                     else:
@@ -679,7 +727,7 @@ def main():
             
             cat_df = pd.DataFrame(categories_df)
             
-            # Create radar chart using Plotly
+ # Create radar chart using Plotly
             fig = go.Figure()
             
             categories = cat_df["Category"].unique()
