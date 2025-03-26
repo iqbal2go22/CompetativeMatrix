@@ -34,6 +34,7 @@ st.markdown("""
     .score-3 { background-color: #9bc357; }
     .score-2 { background-color: #c2dc8d; }
     .score-1 { background-color: #f3f4f6; color: #6b7280; }
+    .score-0 { background-color: #f3f4f6; color: #6b7280; }
     .score-null { background-color: #e5e7eb; }
     
     .st-emotion-cache-16idsys p {
@@ -47,6 +48,12 @@ st.markdown("""
         font-weight: bold;
         border-radius: 5px;
         margin: 10px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .category-icon {
+        margin-right: 10px;
     }
     
     .metric-row {
@@ -60,14 +67,12 @@ st.markdown("""
         text-align: center;
         padding: 10px;
         font-weight: bold;
-        border-bottom: 2px solid #76a12e;
     }
     
     .competitor-score {
-        font-size: 28px;
-        font-weight: bold;
+        font-size: 14px;
         text-align: center;
-        margin-bottom: 0;
+        color: #666;
     }
     
     .legend-container {
@@ -122,7 +127,6 @@ st.markdown("""
         overflow-x: auto;
     }
     
-    /* Fix for competitor headers alignment */
     .competitor-column {
         min-width: 140px;
         width: 140px;
@@ -136,17 +140,41 @@ st.markdown("""
         margin-left: 5px;
     }
     
-    .competitor-name {
-        font-weight: bold;
-        text-align: center;
+    .metric-name {
+        font-weight: 500;
+        display: inline;
     }
     
-    .metric-name {
+    .score-value {
+        font-size: 16px;
         font-weight: bold;
-        display: inline;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .accordion-header {
+        background-color: #f3f4f6;
+        padding: 10px;
+        margin: 5px 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    
+    .accordion-icon {
+        margin-right: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
+
+# Category icons (SVG paths)
+category_icons = {
+    'Site Navigation': '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>',
+    'Product List Page': '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>',
+    'Product Detail Images': '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>',
+    'Product Media': '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2 6H0v5h.01L0 20c0 1.1.9 2 2 2h18v-2H2V6zm20-2h-8l-2-2H6c-1.1 0-1.99.9-1.99 2L4 16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM7 15l4.5-6 3.5 4.51 2.5-3.01L21 15H7z"/></svg>',
+    'Product Content': '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>'
+}
 
 # Initialize session state for storing data
 if 'competitors' not in st.session_state:
@@ -329,6 +357,10 @@ def main():
                 <div class="legend-circle score-1">1</div>
                 <span>None (1)</span>
             </div>
+            <div class="legend-item">
+                <div class="legend-circle score-0">0</div>
+                <span>Minimal/None (0)</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -346,41 +378,40 @@ def main():
         # Update scores
         update_competitor_scores()
         
-        # Display competitors and their total scores without subheader - directly in the same table
-        # Create a table for competitor scores with scores above names
-        st.markdown("""
-        <h3>Competitor Scores</h3>
-        <div class="matrix-container">
-        <table class='score-table'>
-            <tr>
-        """, unsafe_allow_html=True)
+        # Display competitors and their total scores
+        st.markdown("<h3>Competitor Scores</h3>", unsafe_allow_html=True)
         
-        # Create competitor score table directly in HTML
-        score_html = ""
+    # Create a table with scores above names like in the reference image
+        score_table = "<div class='matrix-container'><table class='score-table'><tr>"
+        
+        # Header row with Element/Website label
+        score_table += "<th class='element-column'>Element / Website</th>"
+        
+        # Create competitor headers with scores above names
         for comp in st.session_state.competitors:
-            score_html += f"<td class='competitor-column'><div class='competitor-score'>{comp['score']}</div></td>"
+            score_table += f"<th class='competitor-column'>{comp['name']}<br><div class='competitor-score'>Score: {comp['score']}</div></th>"
+            
+        score_table += "</tr>"
         
-        st.markdown(score_html, unsafe_allow_html=True)
-        st.markdown("</tr><tr>", unsafe_allow_html=True)
+        # Close the table
+        score_table += "</table></div>"
         
-        name_html = ""
-        for comp in st.session_state.competitors:
-            name_html += f"<td class='competitor-column'><div class='competitor-name'>{comp['name']}</div></td>"
+        # Display the table
+        st.markdown(score_table, unsafe_allow_html=True)
         
-        st.markdown(name_html, unsafe_allow_html=True)
-        st.markdown("</tr></table></div>", unsafe_allow_html=True)
-        
-        # Detailed table view
+        # Detailed Matrix View with icons
         st.markdown("<h3>Detailed Matrix View</h3>", unsafe_allow_html=True)
         
         for category in st.session_state.categories:
-            st.markdown(f"<div class='category-header'>{category['name']}</div>", unsafe_allow_html=True)
+            # Add icon to category header
+            icon_html = category_icons.get(category["name"], "")
+            st.markdown(f"<div class='accordion-header'><span class='accordion-icon'>{icon_html}</span> {category['name']}</div>", unsafe_allow_html=True)
             
             # Create a table for metrics and scores
             table_html = "<div class='matrix-container'><table class='score-table'><tr>"
             table_html += "<th class='element-column'>Element / Metric</th>"
             
-            # Add competitor names as headers
+            # Add competitor names as headers - just once per category
             for comp in st.session_state.competitors:
                 table_html += f"<th class='competitor-column'>{comp['name']}</th>"
             
@@ -389,7 +420,7 @@ def main():
             # Add metric rows
             for metric in category["metrics"]:
                 table_html += "<tr>"
-                # Create a very compact Element/Metric section
+                # Create a compact Element/Metric section with inline description
                 table_html += f"<td class='element-column'><div class='metric-name'>{metric['name']}</div><div class='compact-description'>{metric['description']}</div></td>"
                 
                 # Add scores
@@ -419,7 +450,8 @@ def main():
                             if i < len(metric["scores"]):
                                 metric["scores"].pop(i)
                     st.rerun()
-# Add new competitor
+        
+        # Add new competitor
         st.subheader("Add New Competitor")
         new_comp_cols = st.columns([3, 1])
         with new_comp_cols[0]:
@@ -452,9 +484,9 @@ def main():
                         st.markdown(f"**{competitor['name']}**")
                         new_score = st.selectbox(
                             "",
-                            options=[1, 2, 3, 4, 5],
-                            format_func=lambda x: f"{x} - {'World Class' if x==5 else 'Very Good' if x==4 else 'Good' if x==3 else 'Basic' if x==2 else 'None'}",
-                            index=[1, 2, 3, 4, 5].index(metric["scores"][comp_idx]) if comp_idx < len(metric["scores"]) and metric["scores"][comp_idx] in [1, 2, 3, 4, 5] else 0,
+                            options=[0, 1, 2, 3, 4, 5],
+                            format_func=lambda x: f"{x} - {'World Class' if x==5 else 'Very Good' if x==4 else 'Good' if x==3 else 'Basic' if x==2 else 'None' if x==1 else 'Minimal/None'}",
+                            index=[0, 1, 2, 3, 4, 5].index(metric["scores"][comp_idx]) if comp_idx < len(metric["scores"]) and metric["scores"][comp_idx] in [0, 1, 2, 3, 4, 5] else 1,
                             key=f"score_{category_idx}_{metric_idx}_{comp_idx}"
                         )
                                                 
@@ -480,7 +512,7 @@ def main():
                         {"name": "Heritage", "score": 33}
                     ]
                     
-                    # Reset categories with new scoring (1-5 instead of 0-4)
+                    # Reset categories with 0-5 scale
                     st.session_state.categories = [
                         {
                             "name": "Site Navigation",
@@ -488,12 +520,12 @@ def main():
                                 {
                                     "name": "Taxonomy Menu: Mega Menu",
                                     "description": "Expandable navigation showing full product hierarchy and category breadth",
-                                    "scores": [5, 5, 5, 3, 3, 3]
+                                    "scores": [4, 4, 4, 3, 3, 3]
                                 },
                                 {
                                     "name": "Faceted Navigation",
                                     "description": "Filter system using product attributes for refinement",
-                                    "scores": [3, 5, 5, 5, 3, 5]
+                                    "scores": [3, 4, 4, 4, 3, 4]
                                 }
                             ]
                         },
@@ -503,12 +535,12 @@ def main():
                                 {
                                     "name": "Product Descriptions",
                                     "description": "Structured naming with brand, model, and key specifications",
-                                    "scores": [3, 3, 5, 3, 2, 3]
+                                    "scores": [3, 3, 4, 3, 2, 3]
                                 },
                                 {
                                     "name": "Thumbnail Images",
                                     "description": "Quality and consistency of list view images",
-                                    "scores": [3, 3, 5, 5, 2, 3]
+                                    "scores": [3, 3, 4, 4, 2, 3]
                                 }
                             ]
                         },
@@ -518,22 +550,22 @@ def main():
                                 {
                                     "name": "Primary Image",
                                     "description": "Presence and quality of main product image",
-                                    "scores": [5, 5, 5, 5, 3, 3]
+                                    "scores": [4, 4, 4, 4, 3, 3]
                                 },
                                 {
                                     "name": "Multiple Images",
                                     "description": "Additional product views/angles available",
-                                    "scores": [2, 3, 5, 5, 2, 2]
+                                    "scores": [2, 3, 4, 4, 2, 2]
                                 },
                                 {
                                     "name": "Rich Content",
                                     "description": "Interactive rotating product view",
-                                    "scores": [1, 1, 1, 1, 1, 1]
+                                    "scores": [0, 0, 0, 0, 0, 0]
                                 },
                                 {
                                     "name": "Lifestyle Images",
                                     "description": "Photos showing product being used/installed",
-                                    "scores": [1, 2, 5, 5, 1, 1]
+                                    "scores": [0, 2, 4, 4, 0, 0]
                                 }
                             ]
                         },
@@ -543,12 +575,12 @@ def main():
                                 {
                                     "name": "Product Videos",
                                     "description": "Video content showing product features/use",
-                                    "scores": [1, 1, 1, 1, 1, 1]
+                                    "scores": [0, 0, 0, 0, 0, 0]
                                 },
                                 {
                                     "name": "Product PDF Assets",
                                     "description": "Spec sheets, manuals, installation guides",
-                                    "scores": [3, 2, 5, 3, 2, 1]
+                                    "scores": [3, 2, 4, 3, 2, 1]
                                 }
                             ]
                         },
@@ -558,37 +590,37 @@ def main():
                                 {
                                     "name": "Long Description/Feature Bullets",
                                     "description": "Marketing descriptions and key product features",
-                                    "scores": [3, 2, 5, 5, 3, 2]
+                                    "scores": [3, 2, 4, 4, 3, 2]
                                 },
                                 {
                                     "name": "Specifications",
                                     "description": "Technical product attributes and details",
-                                    "scores": [3, 5, 5, 5, 3, 2]
+                                    "scores": [3, 4, 4, 4, 3, 2]
                                 },
                                 {
                                     "name": "How to?",
                                     "description": "Where/how to use the product",
-                                    "scores": [3, 2, 5, 5, 2, 1]
+                                    "scores": [3, 2, 4, 4, 2, 1]
                                 },
                                 {
                                     "name": "Product Recommendations/Substitutions",
                                     "description": "Compatible products, replacement parts",
-                                    "scores": [3, 3, 5, 3, 2, 2]
+                                    "scores": [3, 3, 4, 3, 2, 2]
                                 },
                                 {
                                     "name": "Customer Reviews & Q&A",
                                     "description": "Customer feedback and questions with answers",
-                                    "scores": [2, 3, 5, 3, 1, 1]
+                                    "scores": [2, 3, 4, 3, 1, 0]
                                 },
                                 {
                                     "name": "Projects/Inspirational/Collections",
                                     "description": "Project ideas and inspirational content",
-                                    "scores": [1, 2, 5, 3, 1, 1]
+                                    "scores": [1, 2, 4, 3, 0, 0]
                                 },
                                 {
                                     "name": "Base/Variant – SUPER SKU",
                                     "description": "Product variants and super SKU structure",
-                                    "scores": [2, 3, 5, 2, 2, 1]
+                                    "scores": [2, 3, 4, 2, 2, 1]
                                 }
                             ]
                         }
