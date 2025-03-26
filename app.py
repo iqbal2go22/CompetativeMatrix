@@ -68,18 +68,73 @@ st.markdown("""
         font-weight: bold;
         text-align: center;
     }
+    
+    .legend-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    
+    .legend-circle {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: white;
+    }
+    
+    .score-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .score-table th, .score-table td {
+        text-align: center;
+        padding: 10px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .element-column {
+        text-align: left;
+    }
+    
+    .matrix-container {
+        overflow-x: auto;
+    }
+    
+    /* Fix for competitor headers alignment */
+    .competitor-column {
+        min-width: 120px;
+        width: 120px;
+        max-width: 120px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Initialize session state for storing data
 if 'competitors' not in st.session_state:
     st.session_state.competitors = [
-        {"name": "SiteOne.com", "score": 39},
-        {"name": "Grainger", "score": 44},
-        {"name": "Home Depot", "score": 60},
-        {"name": "PlantingTree.com", "score": 52},
-        {"name": "Fastenal", "score": 30},
-        {"name": "Heritage", "score": 27}
+        {"name": "SiteOne.com", "score": 44},
+        {"name": "Grainger", "score": 50},
+        {"name": "Home Depot", "score": 77},
+        {"name": "PlantingTree.com", "score": 62},
+        {"name": "Fastenal", "score": 34},
+        {"name": "Heritage", "score": 33}
     ]
 
 if 'categories' not in st.session_state:
@@ -90,12 +145,12 @@ if 'categories' not in st.session_state:
                 {
                     "name": "Taxonomy Menu: Mega Menu",
                     "description": "Expandable navigation showing full product hierarchy and category breadth",
-                    "scores": [4, 4, 4, 3, 3, 3]
+                    "scores": [5, 5, 5, 3, 3, 3]
                 },
                 {
                     "name": "Faceted Navigation",
                     "description": "Filter system using product attributes for refinement",
-                    "scores": [3, 4, 4, 4, 3, 4]
+                    "scores": [3, 5, 5, 5, 3, 5]
                 }
             ]
         },
@@ -105,12 +160,12 @@ if 'categories' not in st.session_state:
                 {
                     "name": "Product Descriptions",
                     "description": "Structured naming with brand, model, and key specifications",
-                    "scores": [3, 3, 4, 3, 2, 3]
+                    "scores": [3, 3, 5, 3, 2, 3]
                 },
                 {
                     "name": "Thumbnail Images",
                     "description": "Quality and consistency of list view images",
-                    "scores": [3, 3, 4, 4, 2, 3]
+                    "scores": [3, 3, 5, 5, 2, 3]
                 }
             ]
         },
@@ -120,22 +175,22 @@ if 'categories' not in st.session_state:
                 {
                     "name": "Primary Image",
                     "description": "Presence and quality of main product image",
-                    "scores": [4, 4, 4, 4, 3, 3]
+                    "scores": [5, 5, 5, 5, 3, 3]
                 },
                 {
                     "name": "Multiple Images",
                     "description": "Additional product views/angles available",
-                    "scores": [2, 3, 4, 4, 2, 2]
+                    "scores": [2, 3, 5, 5, 2, 2]
                 },
                 {
                     "name": "Rich Content",
                     "description": "Interactive rotating product view",
-                    "scores": [0, 0, 0, 0, 0, 0]
+                    "scores": [1, 1, 1, 1, 1, 1]
                 },
                 {
                     "name": "Lifestyle Images",
                     "description": "Photos showing product being used/installed",
-                    "scores": [0, 2, 4, 4, 0, 0]
+                    "scores": [1, 2, 5, 5, 1, 1]
                 }
             ]
         },
@@ -145,12 +200,12 @@ if 'categories' not in st.session_state:
                 {
                     "name": "Product Videos",
                     "description": "Video content showing product features/use",
-                    "scores": [0, 0, 0, 0, 0, 0]
+                    "scores": [1, 1, 1, 1, 1, 1]
                 },
                 {
                     "name": "Product PDF Assets",
                     "description": "Spec sheets, manuals, installation guides",
-                    "scores": [3, 2, 4, 3, 2, 1]
+                    "scores": [3, 2, 5, 3, 2, 1]
                 }
             ]
         },
@@ -160,37 +215,37 @@ if 'categories' not in st.session_state:
                 {
                     "name": "Long Description/Feature Bullets",
                     "description": "Marketing descriptions and key product features",
-                    "scores": [3, 2, 4, 4, 3, 2]
+                    "scores": [3, 2, 5, 5, 3, 2]
                 },
                 {
                     "name": "Specifications",
                     "description": "Technical product attributes and details",
-                    "scores": [3, 4, 4, 4, 3, 2]
+                    "scores": [3, 5, 5, 5, 3, 2]
                 },
                 {
                     "name": "How to?",
                     "description": "Where/how to use the product",
-                    "scores": [3, 2, 4, 4, 2, 1]
+                    "scores": [3, 2, 5, 5, 2, 1]
                 },
                 {
                     "name": "Product Recommendations/Substitutions",
                     "description": "Compatible products, replacement parts",
-                    "scores": [3, 3, 4, 3, 2, 2]
+                    "scores": [3, 3, 5, 3, 2, 2]
                 },
                 {
                     "name": "Customer Reviews & Q&A",
                     "description": "Customer feedback and questions with answers",
-                    "scores": [2, 3, 4, 3, 1, 0]
+                    "scores": [2, 3, 5, 3, 1, 1]
                 },
                 {
                     "name": "Projects/Inspirational/Collections",
                     "description": "Project ideas and inspirational content",
-                    "scores": [1, 2, 4, 3, 0, 0]
+                    "scores": [1, 2, 5, 3, 1, 1]
                 },
                 {
                     "name": "Base/Variant – SUPER SKU",
                     "description": "Product variants and super SKU structure",
-                    "scores": [2, 3, 4, 2, 2, 1]
+                    "scores": [2, 3, 5, 2, 2, 1]
                 }
             ]
         }
@@ -229,18 +284,31 @@ def main():
     tab1, tab2 = st.tabs(["Dashboard", "Data Editor"])
     
     with tab1:
-        # Legend
-        col1, col2, col3, col4, col5 = st.columns(5)
-        with col1:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-5">5</div>&nbsp;World Class (5)</div>', unsafe_allow_html=True)
-        with col2:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-4">4</div>&nbsp;Very Good (4)</div>', unsafe_allow_html=True)
-        with col3:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-3">3</div>&nbsp;Good (3)</div>', unsafe_allow_html=True)
-        with col4:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-2">2</div>&nbsp;Basic (2)</div>', unsafe_allow_html=True)
-        with col5:
-            st.markdown('<div style="display:flex;align-items:center;"><div class="score-circle score-1">1</div>&nbsp;None (1)</div>', unsafe_allow_html=True)
+        # Condensed Legend in a single row
+        st.markdown("""
+        <div class="legend-container">
+            <div class="legend-item">
+                <div class="legend-circle score-5">5</div>
+                <span>World Class (5)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle score-4">4</div>
+                <span>Very Good (4)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle score-3">3</div>
+                <span>Good (3)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle score-2">2</div>
+                <span>Basic (2)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle score-1">1</div>
+                <span>None (1)</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Convert old scores (0,2,3,4) to new scale (1,2,3,4,5)
         if "score_updated" not in st.session_state:
@@ -256,20 +324,21 @@ def main():
         # Update scores
         update_competitor_scores()
         
-        # Display competitors and their total scores
+        # Display competitors and their total scores in a table layout
         st.subheader("Competitor Scores")
-        score_container = st.container()
-        score_cols = score_container.columns(len(st.session_state.competitors))
         
-        # First row - competitor names
-        for i, comp in enumerate(st.session_state.competitors):
-            with score_cols[i]:
-                st.markdown(f"<div class='competitor-header'>{comp['name']}</div>", unsafe_allow_html=True)
+        # Create a table for competitor scores
+        competitor_html = "<table class='score-table'><tr>"
+        # Add competitor names
+        for comp in st.session_state.competitors:
+            competitor_html += f"<th class='competitor-column'>{comp['name']}</th>"
+        competitor_html += "</tr><tr>"
+        # Add scores
+        for comp in st.session_state.competitors:
+            competitor_html += f"<td class='competitor-column'><div class='competitor-score'>{comp['score']}</div></td>"
+        competitor_html += "</tr></table>"
         
-        # Second row - scores
-        for i, comp in enumerate(st.session_state.competitors):
-            with score_cols[i]:
-                st.markdown(f"<div class='competitor-score'>{comp['score']}</div>", unsafe_allow_html=True)
+        st.markdown(competitor_html, unsafe_allow_html=True)
         
         # Detailed table view
         st.subheader("Detailed Matrix View")
@@ -277,27 +346,30 @@ def main():
         for category in st.session_state.categories:
             st.markdown(f"<div class='category-header'>{category['name']}</div>", unsafe_allow_html=True)
             
-            # Add competitor headers for each category
-            header_cols = st.columns([3] + [1] * len(st.session_state.competitors))
-            with header_cols[0]:
-                st.markdown("<b>Element / Metric</b>", unsafe_allow_html=True)
+            # Create a table for metrics and scores
+            table_html = "<div class='matrix-container'><table class='score-table'><tr>"
+            table_html += "<th class='element-column'>Element / Metric</th>"
             
-            for i, comp in enumerate(st.session_state.competitors):
-                with header_cols[i+1]:
-                    st.markdown(f"<b>{comp['name']}</b>", unsafe_allow_html=True)
+            # Add competitor names as headers
+            for comp in st.session_state.competitors:
+                table_html += f"<th class='competitor-column'>{comp['name']}</th>"
             
-            # Display metrics with scores
+            table_html += "</tr>"
+            
+            # Add metric rows
             for metric in category["metrics"]:
-                cols = st.columns([3] + [1] * len(st.session_state.competitors))
+                table_html += "<tr>"
+                # Metric name and description
+                table_html += f"<td class='element-column'><strong>{metric['name']}</strong><br/><small>{metric['description']}</small></td>"
                 
-                with cols[0]:
-                    st.markdown(f"**{metric['name']}**")
-                    st.markdown(f"<small>{metric['description']}</small>", unsafe_allow_html=True)
-                
+                # Add scores
                 for i, score in enumerate(metric["scores"]):
                     if i < len(st.session_state.competitors):
-                        with cols[i+1]:
-                            st.markdown(f"<div class='score-circle score-{score}'>{score}</div>", unsafe_allow_html=True)
+                        table_html += f"<td class='competitor-column'><div class='score-circle score-{score}'>{score}</div></td>"
+                table_html += "</tr>"
+                
+            table_html += "</table></div>"
+            st.markdown(table_html, unsafe_allow_html=True)
     
     with tab2:
         st.header("Manage Competitors")
@@ -356,18 +428,7 @@ def main():
                             index=[1, 2, 3, 4, 5].index(metric["scores"][comp_idx]) if comp_idx < len(metric["scores"]) and metric["scores"][comp_idx] in [1, 2, 3, 4, 5] else 0,
                             key=f"score_{category_idx}_{metric_idx}_{comp_idx}"
                         )
-                        
-                        # Convert old scores (0,2,3,4) to new scale (1,2,3,4,5)
-                        if "score_updated" not in st.session_state:
-                            for cat in st.session_state.categories:
-                                for met in cat["metrics"]:
-                                    for i, score in enumerate(met["scores"]):
-                                        if score == 0:
-                                            met["scores"][i] = 1
-                                        elif score == 4:
-                                            met["scores"][i] = 5
-                            st.session_state.score_updated = True
-                            
+                                                
                         # Update scores
                         if comp_idx < len(metric["scores"]) and new_score != metric["scores"][comp_idx]:
                             metric["scores"][comp_idx] = new_score
@@ -382,23 +443,127 @@ def main():
                 if st.session_state.get('confirm_reset', False):
                     # Reset to default data
                     st.session_state.competitors = [
-                        {"name": "SiteOne.com", "score": 39},
-                        {"name": "Grainger", "score": 44},
-                        {"name": "Home Depot", "score": 60},
-                        {"name": "PlantingTree.com", "score": 52},
-                        {"name": "Fastenal", "score": 30},
-                        {"name": "Heritage", "score": 27}
+                        {"name": "SiteOne.com", "score": 44},
+                        {"name": "Grainger", "score": 50},
+                        {"name": "Home Depot", "score": 77},
+                        {"name": "PlantingTree.com", "score": 62},
+                        {"name": "Fastenal", "score": 34},
+                        {"name": "Heritage", "score": 33}
                     ]
                     
                     # Reset categories with new scoring (1-5 instead of 0-4)
-                    for category in st.session_state.categories:
-                        for metric in category["metrics"]:
-                            # Convert existing scores
-                            for i in range(len(metric["scores"])):
-                                if metric["scores"][i] == 0:
-                                    metric["scores"][i] = 1
-                                elif metric["scores"][i] == 4:
-                                    metric["scores"][i] = 5
+                    st.session_state.categories = [
+                        {
+                            "name": "Site Navigation",
+                            "metrics": [
+                                {
+                                    "name": "Taxonomy Menu: Mega Menu",
+                                    "description": "Expandable navigation showing full product hierarchy and category breadth",
+                                    "scores": [5, 5, 5, 3, 3, 3]
+                                },
+                                {
+                                    "name": "Faceted Navigation",
+                                    "description": "Filter system using product attributes for refinement",
+                                    "scores": [3, 5, 5, 5, 3, 5]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product List Page",
+                            "metrics": [
+                                {
+                                    "name": "Product Descriptions",
+                                    "description": "Structured naming with brand, model, and key specifications",
+                                    "scores": [3, 3, 5, 3, 2, 3]
+                                },
+                                {
+                                    "name": "Thumbnail Images",
+                                    "description": "Quality and consistency of list view images",
+                                    "scores": [3, 3, 5, 5, 2, 3]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Detail Images",
+                            "metrics": [
+                                {
+                                    "name": "Primary Image",
+                                    "description": "Presence and quality of main product image",
+                                    "scores": [5, 5, 5, 5, 3, 3]
+                                },
+                                {
+                                    "name": "Multiple Images",
+                                    "description": "Additional product views/angles available",
+                                    "scores": [2, 3, 5, 5, 2, 2]
+                                },
+                                {
+                                    "name": "Rich Content",
+                                    "description": "Interactive rotating product view",
+                                    "scores": [1, 1, 1, 1, 1, 1]
+                                },
+                                {
+                                    "name": "Lifestyle Images",
+                                    "description": "Photos showing product being used/installed",
+                                    "scores": [1, 2, 5, 5, 1, 1]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Media",
+                            "metrics": [
+                                {
+                                    "name": "Product Videos",
+                                    "description": "Video content showing product features/use",
+                                    "scores": [1, 1, 1, 1, 1, 1]
+                                },
+                                {
+                                    "name": "Product PDF Assets",
+                                    "description": "Spec sheets, manuals, installation guides",
+                                    "scores": [3, 2, 5, 3, 2, 1]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Product Content",
+                            "metrics": [
+                                {
+                                    "name": "Long Description/Feature Bullets",
+                                    "description": "Marketing descriptions and key product features",
+                                    "scores": [3, 2, 5, 5, 3, 2]
+                                },
+                                {
+                                    "name": "Specifications",
+                                    "description": "Technical product attributes and details",
+                                    "scores": [3, 5, 5, 5, 3, 2]
+                                },
+                                {
+                                    "name": "How to?",
+                                    "description": "Where/how to use the product",
+                                    "scores": [3, 2, 5, 5, 2, 1]
+                                },
+                                {
+                                    "name": "Product Recommendations/Substitutions",
+                                    "description": "Compatible products, replacement parts",
+                                    "scores": [3, 3, 5, 3, 2, 2]
+                                },
+                                {
+                                    "name": "Customer Reviews & Q&A",
+                                    "description": "Customer feedback and questions with answers",
+                                    "scores": [2, 3, 5, 3, 1, 1]
+                                },
+                                {
+                                    "name": "Projects/Inspirational/Collections",
+                                    "description": "Project ideas and inspirational content",
+                                    "scores": [1, 2, 5, 3, 1, 1]
+                                },
+                                {
+                                    "name": "Base/Variant – SUPER SKU",
+                                    "description": "Product variants and super SKU structure",
+                                    "scores": [2, 3, 5, 2, 2, 1]
+                                }
+                            ]
+                        }
+                    ]
                     
                     st.session_state['confirm_reset'] = False
                     st.rerun()
